@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Gestão - Avaliações</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div id="loginScreen">
+            <header>
+                <h1>Acesso Restrito</h1>
+                <p>Faça login para ver as avaliações dos técnicos.</p>
+            </header>
+            <form id="loginForm">
+                <div class="input-group">
+                    <label for="username">Usuário:</label>
+                    <input type="text" id="username" placeholder="Digite seu usuário" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Senha:</label>
+                    <input type="password" id="password" placeholder="Digite sua senha" required>
+                </div>
+                <button type="submit" class="btn-primary">Entrar</button>
+            </form>
+            <div class="footer-links">
+                <a href="index.html">&larr; Voltar para a página de avaliação</a>
+            </div>
+        </div>
+
+        <div id="dashboardScreen" class="hidden">
+            <header>
+                <h1>Avaliações Recebidas</h1>
+                <button id="logoutBtn" class="btn-secondary">Sair</button>
+            </header>
+            
+            <div class="reviews-list" id="reviewsContainer">
+                </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

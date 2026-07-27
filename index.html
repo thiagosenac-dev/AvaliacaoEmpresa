@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avaliação de Atendimento</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Avalie nosso atendimento</h1>
+            <p>Sua opinião é fundamental para melhorarmos nossos serviços.</p>
+        </header>
+
+        <form id="evaluationForm">
+            <div class="input-group">
+                <label for="technician">Técnico que realizou o atendimento:</label>
+                <select id="technician" required>
+                    <option value="" disabled selected>Selecione o técnico...</option>
+                    <option value="Karla">Karla (GERENTE)</option>
+                    <option value="Daniel">Daniel (TÉCNICO IMPRESSORA)</option>
+                    <option value="Thiago">Thiago (TÉCNICO IMPRESSORA)</option>
+                    <option value="Vitor">Vitor (TÉCNICO IMPRESSORA)</option>
+                    <option value="Lucas">Lucas (TÉCNICO COMPUTADORES)</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>Nota de Avaliação (0 a 5):</label>
+                <div class="stars" id="starRating">
+                    <span class="star" data-value="1">&#9733;</span>
+                    <span class="star" data-value="2">&#9733;</span>
+                    <span class="star" data-value="3">&#9733;</span>
+                    <span class="star" data-value="4">&#9733;</span>
+                    <span class="star" data-value="5">&#9733;</span>
+                </div>
+                <input type="hidden" id="ratingValue" required>
+            </div>
+
+            <div class="input-group">
+                <label for="comments">Breve comentário sobre o serviço:</label>
+                <textarea id="comments" rows="3" placeholder="Gostou do atendimento? Escreva aqui..."></textarea>
+            </div>
+
+            <div class="input-group">
+                <label for="improvements">Pontos a melhorar:</label>
+                <textarea id="improvements" rows="3" placeholder="O que podemos fazer melhor na próxima vez?"></textarea>
+            </div>
+
+            <button type="submit" class="btn-primary">Enviar Avaliação</button>
+        </form>
+        
+        <div class="footer-links">
+            <a href="dashboard.html">Acesso Restrito (Gestão)</a>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
