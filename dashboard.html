@@ -10,13 +10,14 @@
     <div class="container">
         <div id="loginScreen">
             <header>
+                <img src="assets/logo-digitusul.jpeg" alt="Digitusul" class="logo">
                 <h1>Acesso Restrito</h1>
                 <p>Faça login para ver as avaliações dos técnicos.</p>
             </header>
             <form id="loginForm">
                 <div class="input-group">
-                    <label for="username">Usuário:</label>
-                    <input type="text" id="username" placeholder="Digite seu usuário" required>
+                    <label for="username">E-mail:</label>
+                    <input type="email" id="username" placeholder="Digite seu e-mail" required>
                 </div>
                 <div class="input-group">
                     <label for="password">Senha:</label>
@@ -31,6 +32,7 @@
 
         <div id="dashboardScreen" class="hidden">
             <header>
+                <img src="assets/logo-digitusul.jpeg" alt="Digitusul" class="logo">
                 <h1>Avaliações Recebidas</h1>
                 <button id="logoutBtn" class="btn-secondary">Sair</button>
             </header>
@@ -40,6 +42,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
 </body>
 </html>

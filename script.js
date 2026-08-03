@@ -1,5 +1,14 @@
+// Tudo dentro dessa função (IIFE) para nunca dar erro de "já declarado"
+// caso o script seja recarregado/reinjetado (ex: pelo Live Server)
+(function () {
+
+// ==== CONFIG SUPABASE ====
+const SUPABASE_URL = "https://yboawjaseqxeierjvxdb.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlib2F3amFzZXF4ZWllcmp2eGRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxNDEwNjUsImV4cCI6MjA4NzcxNzA2NX0.ng4z-K5BkHkkm7sn6cD6mOZUDBpWlmJ-Ii39dVVS25U";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 document.addEventListener("DOMContentLoaded", () => {
-    
+
     // ==========================================
     // LÓGICA DA PÁGINA DE AVALIAÇÃO (index.html)
     // ==========================================
@@ -13,11 +22,9 @@ document.addEventListener("DOMContentLoaded", () => {
             star.addEventListener("click", () => {
                 let value = parseInt(star.getAttribute("data-value"));
                 ratingValue.value = value;
-                
-                // Limpa todas as estrelas
+
                 stars.forEach(s => s.classList.remove("active"));
-                
-                // Preenche as estrelas até a clicada
+
                 stars.forEach(s => {
                     if (parseInt(s.getAttribute("data-value")) <= value) {
                         s.classList.add("active");
@@ -27,42 +34,36 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Salvar a avaliação no "Banco de Dados" (LocalStorage)
+    // Salvar a avaliação no Supabase
     if (evaluationForm) {
-        evaluationForm.addEventListener("submit", (e) => {
+        evaluationForm.addEventListener("submit", async (e) => {
             e.preventDefault();
-            
+
             if (!ratingValue.value) {
                 alert("Por favor, selecione uma nota de estrela.");
                 return;
             }
 
-            // 1. Capturar os dados digitados
             const technician = document.getElementById("technician").value;
-            const rating = ratingValue.value;
+            const rating = parseInt(ratingValue.value);
             const comments = document.getElementById("comments").value;
             const improvements = document.getElementById("improvements").value;
-            const date = new Date().toLocaleDateString('pt-BR');
 
-            // 2. Criar um objeto com a nova avaliação
-            const newReview = {
-                technician,
-                rating,
-                comments,
-                improvements,
-                date
-            };
+            const submitBtn = evaluationForm.querySelector("button[type='submit']");
+            if (submitBtn) submitBtn.disabled = true;
 
-            // 3. Buscar avaliações existentes ou criar lista vazia
-            let savedReviews = JSON.parse(localStorage.getItem("systemReviews")) || [];
-            
-            // 4. Adicionar a nova avaliação na lista
-            savedReviews.push(newReview);
-            
-            // 5. Salvar a lista atualizada
-            localStorage.setItem("systemReviews", JSON.stringify(savedReviews));
+            const { error } = await supabaseClient
+                .from("reviews")
+                .insert([{ technician, rating, comments, improvements }]);
 
-            // Finalizar
+            if (submitBtn) submitBtn.disabled = false;
+
+            if (error) {
+                console.error(error);
+                alert("Ops, não foi possível enviar sua avaliação. Tente novamente.");
+                return;
+            }
+
             alert("Muito obrigado! Sua avaliação foi enviada com sucesso.");
             evaluationForm.reset();
             stars.forEach(s => s.classList.remove("active"));
@@ -80,29 +81,41 @@ document.addEventListener("DOMContentLoaded", () => {
     const logoutBtn = document.getElementById("logoutBtn");
     const reviewsContainer = document.getElementById("reviewsContainer");
 
-    // Função que busca e desenha os dados na tela
-    function loadReviews() {
-        if (!reviewsContainer) return; 
-        
-        reviewsContainer.innerHTML = ""; 
-        
-        let savedReviews = JSON.parse(localStorage.getItem("systemReviews")) || [];
+    // Busca e desenha os dados na tela
+    async function loadReviews() {
+        if (!reviewsContainer) return;
 
-        if (savedReviews.length === 0) {
+        reviewsContainer.innerHTML = "<p style='text-align:center; color:#666;'>Carregando...</p>";
+
+        const { data: savedReviews, error } = await supabaseClient
+            .from("reviews")
+            .select("*")
+            .order("created_at", { ascending: false });
+
+        if (error) {
+            console.error(error);
+            reviewsContainer.innerHTML = "<p style='text-align:center; color:#c00;'>Erro ao carregar avaliações.</p>";
+            return;
+        }
+
+        reviewsContainer.innerHTML = "";
+
+        if (!savedReviews || savedReviews.length === 0) {
             reviewsContainer.innerHTML = "<p style='text-align:center; color:#666;'>Nenhuma avaliação recebida ainda.</p>";
             return;
         }
 
-        savedReviews.reverse().forEach(review => {
-            
+        savedReviews.forEach(review => {
             let starsHTML = "";
-            for(let i = 1; i <= 5; i++) {
-                if(i <= review.rating) {
+            for (let i = 1; i <= 5; i++) {
+                if (i <= review.rating) {
                     starsHTML += '<span class="star-active">&#9733;</span>';
                 } else {
                     starsHTML += '<span style="color: #ccc;">&#9733;</span>';
                 }
             }
+
+            const dataFormatada = new Date(review.created_at).toLocaleDateString('pt-BR');
 
             const card = document.createElement("div");
             card.classList.add("review-card");
@@ -113,38 +126,64 @@ document.addEventListener("DOMContentLoaded", () => {
                         ${starsHTML} (${review.rating}/5)
                     </div>
                 </div>
-                <p style="font-size: 0.8rem; color: #888; margin-bottom: 10px;">Data: ${review.date}</p>
+                <p style="font-size: 0.8rem; color: #888; margin-bottom: 10px;">Data: ${dataFormatada}</p>
                 <p><strong>Comentário:</strong> ${review.comments ? review.comments : "<em>Nenhum comentário deixado.</em>"}</p>
                 <p><strong>A melhorar:</strong> ${review.improvements ? review.improvements : "<em>Nada a declarar.</em>"}</p>
             `;
-            
+
             reviewsContainer.appendChild(card);
         });
     }
 
-    // Login
-    if (loginForm) {
-        loginForm.addEventListener("submit", (e) => {
-            e.preventDefault();
-            
-            const user = document.getElementById("username").value;
-            const pass = document.getElementById("password").value;
+    // Verifica se já existe uma sessão ativa ao abrir o dashboard
+    async function checkSession() {
+        if (!dashboardScreen) return;
 
-            if (user && pass) {
-                loginScreen.classList.add("hidden");
-                dashboardScreen.classList.remove("hidden");
-                
-                loadReviews(); 
+        const { data: { session } } = await supabaseClient.auth.getSession();
+
+        if (session) {
+            loginScreen.classList.add("hidden");
+            dashboardScreen.classList.remove("hidden");
+            loadReviews();
+        }
+    }
+    checkSession();
+
+    // Login real com Supabase Auth
+    if (loginForm) {
+        loginForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            const submitBtn = loginForm.querySelector("button[type='submit']");
+            if (submitBtn) submitBtn.disabled = true;
+
+            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+            if (submitBtn) submitBtn.disabled = false;
+
+            if (error) {
+                alert("Usuário ou senha inválidos.");
+                return;
             }
+
+            loginScreen.classList.add("hidden");
+            dashboardScreen.classList.remove("hidden");
+            loadReviews();
         });
     }
 
     // Logout
     if (logoutBtn) {
-        logoutBtn.addEventListener("click", () => {
+        logoutBtn.addEventListener("click", async () => {
+            await supabaseClient.auth.signOut();
             dashboardScreen.classList.add("hidden");
             loginScreen.classList.remove("hidden");
             loginForm.reset();
         });
     }
 });
+
+})();

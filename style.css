@@ -1,9 +1,9 @@
 /* Variáveis de Cores */
 :root {
-    --navy-blue: #0A192F;
-    --navy-blue-light: #112240;
-    --red: #D90429;
-    --red-hover: #EF233C;
+    --navy-blue: #2F3B8F;
+    --navy-blue-light: #3D4AA6;
+    --red: #BE2F35;
+    --red-hover: #D63C42;
     --white: #FFFFFF;
     --bg-color: #F3F4F6;
     --text-color: #333333;
@@ -43,6 +43,14 @@ header {
     margin-bottom: 30px;
 }
 
+.logo {
+    display: block;
+    margin: 0 auto 20px auto;
+    max-width: 180px;
+    width: 100%;
+    height: auto;
+}
+
 header h1 {
     color: var(--navy-blue);
     margin-bottom: 10px;
@@ -67,6 +75,7 @@ label {
 
 input[type="text"],
 input[type="password"],
+input[type="email"],
 select,
 textarea {
     width: 100%;
