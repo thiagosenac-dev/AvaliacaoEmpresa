@@ -168,6 +168,25 @@ textarea {
     display: none;
 }
 
+/* Barra de Filtros */
+.filters-bar {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.filters-bar .input-group {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+@media (max-width: 600px) {
+    .filters-bar {
+        flex-direction: column;
+        gap: 12px;
+    }
+}
+
 /* Dashboard Cards */
 .reviews-list {
     display: flex;

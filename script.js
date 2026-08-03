@@ -80,17 +80,31 @@ document.addEventListener("DOMContentLoaded", () => {
     const dashboardScreen = document.getElementById("dashboardScreen");
     const logoutBtn = document.getElementById("logoutBtn");
     const reviewsContainer = document.getElementById("reviewsContainer");
+    const filterTechnician = document.getElementById("filterTechnician");
+    const filterRating = document.getElementById("filterRating");
 
-    // Busca e desenha os dados na tela
+    // Busca e desenha os dados na tela (aplicando filtros, se houver)
     async function loadReviews() {
         if (!reviewsContainer) return;
 
         reviewsContainer.innerHTML = "<p style='text-align:center; color:#666;'>Carregando...</p>";
 
-        const { data: savedReviews, error } = await supabaseClient
+        let query = supabaseClient
             .from("reviews")
             .select("*")
             .order("created_at", { ascending: false });
+
+        const technicianValue = filterTechnician ? filterTechnician.value : "";
+        const ratingValue = filterRating ? filterRating.value : "";
+
+        if (technicianValue) {
+            query = query.eq("technician", technicianValue);
+        }
+        if (ratingValue) {
+            query = query.eq("rating", parseInt(ratingValue));
+        }
+
+        const { data: savedReviews, error } = await query;
 
         if (error) {
             console.error(error);
@@ -101,7 +115,10 @@ document.addEventListener("DOMContentLoaded", () => {
         reviewsContainer.innerHTML = "";
 
         if (!savedReviews || savedReviews.length === 0) {
-            reviewsContainer.innerHTML = "<p style='text-align:center; color:#666;'>Nenhuma avaliação recebida ainda.</p>";
+            const temFiltro = technicianValue || ratingValue;
+            reviewsContainer.innerHTML = temFiltro
+                ? "<p style='text-align:center; color:#666;'>Nenhuma avaliação encontrada com esse filtro.</p>"
+                : "<p style='text-align:center; color:#666;'>Nenhuma avaliação recebida ainda.</p>";
             return;
         }
 
@@ -148,6 +165,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
     checkSession();
+
+    // Recarrega a lista sempre que um filtro for alterado
+    if (filterTechnician) {
+        filterTechnician.addEventListener("change", loadReviews);
+    }
+    if (filterRating) {
+        filterRating.addEventListener("change", loadReviews);
+    }
 
     // Login real com Supabase Auth
     if (loginForm) {
